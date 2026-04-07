@@ -1,14 +1,15 @@
-import numpy as np
-from sklearn.inspection import permutation_importance
+from sklearn.decomposition import PCA
+import seaborn as sns
 
-# Calculate Importance
-perm_importance = permutation_importance(model, X_test, y_test, n_repeats=10, random_state=42)
-sorted_idx = perm_importance.importances_mean.argsort()[-15:]
+# Dimensionality Reduction
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
 
 # Plot
-plt.figure(figsize=(10, 8))
-plt.barh(X.columns[sorted_idx], perm_importance.importances_mean[sorted_idx])
-plt.xlabel("Permutation Importance Score")
-plt.title("Top 15 Features Predicting Job Resilience")
-plt.tight_layout()
+plt.figure(figsize=(10, 7))
+sns.scatterplot(x=X_pca[:, 0], y=X_pca[:, 1], hue=y, palette='viridis', alpha=0.7)
+plt.title('PCA Projection: How the SVM Sees Job Clusters')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.legend(title='Risk Level')
 plt.show()
