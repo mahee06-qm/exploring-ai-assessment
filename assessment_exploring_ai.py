@@ -1,28 +1,33 @@
-import tensorflow as tf
-from tensorflow.keras import layers, models
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
-# 1. Define the CNN Architecture
-model = models.Sequential([
-    # Convolutional layer to detect fruit features (edges, textures)
-    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(100, 100, 3)),
-    layers.MaxPooling2D((2, 2)),
-    
-    # Flattening 2D feature maps into a 1D vector
-    layers.Flatten(),
-    
-    # Fully connected layer for classification
-    layers.Dense(64, activation='relu'),
-    
-    # Output layer: 0 (Apple) or 1 (Orange) using Sigmoid
-    layers.Dense(1, activation='sigmoid')
-])
+# Load data
+df = pd.read_csv('labeled_automation_data.csv')
 
-# 2. Compile the model
-model.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy', 'loss']
-)
+# Prep Features and Target
+X = df.loc[:, 'Arm-Hand Steadiness':'Working with Computers']
+y = df['Risk_Level']
 
-# 3. View the model structure
-model.summary()
+le = LabelEncoder()
+y_encoded = le.fit_transform(y)
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded)
+
+# Model with Optimal Parameters
+model = SVC(C=10, gamma=0.01, kernel='rbf')
+model.fit(X_train, y_train)
+
+# Plot
+y_pred = model.predict(X_test)
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=le.classes_)
+disp.plot(cmap='Blues')
+plt.title('SVM Confusion Matrix')
+plt.show()
