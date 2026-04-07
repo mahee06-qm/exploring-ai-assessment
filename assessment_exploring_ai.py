@@ -4,20 +4,20 @@ import seaborn as sns
 
 # Load datasets
 df_preds = pd.read_csv('final_automation_predictions.csv')
-df_ab = pd.read_csv('AB.csv')
+df_wa = pd.read_csv('WA.csv')
 
-# Filter for 'Originality' Level
-df_orig = df_ab[(df_ab['Element Name'] == 'Originality') & (df_ab['Scale Name'] == 'Level')]
+# Filter for 'Assisting and Caring for Others' Level
+df_care = df_wa[(df_wa['Element Name'] == 'Assisting and Caring for Others') & (df_wa['Scale Name'] == 'Level')]
 
 # Merge
-df_plot = pd.merge(df_preds[['O*NET-SOC Code', 'Resilience_Score']], 
-                   df_orig[['O*NET-SOC Code', 'Data Value']], 
+df_plot = pd.merge(df_preds[['O*NET-SOC Code', 'Predicted_Risk_Level']], 
+                   df_care[['O*NET-SOC Code', 'Data Value']], 
                    on='O*NET-SOC Code')
 
 # Plot
-plt.figure(figsize=(10, 6))
-sns.scatterplot(data=df_plot, x='Data Value', y='Resilience_Score', alpha=0.6)
-plt.title('Relationship: Originality Level vs. Resilience Score')
-plt.xlabel('Originality (Level)')
-plt.ylabel('Resilience Score')
+plt.figure(figsize=(8, 6))
+sns.boxplot(data=df_plot, x='Predicted_Risk_Level', y='Data Value', palette='Set2')
+plt.title('Assisting and Caring for Others by Risk Level')
+plt.xlabel('Predicted Risk Level')
+plt.ylabel('Assisting and Caring for Others (Level)')
 plt.show()
