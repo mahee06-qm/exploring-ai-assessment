@@ -1,33 +1,19 @@
-import tensorflow as tf
-from tensorflow.keras import layers, models
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 
-# 1. Advanced Sequential CNN Architecture
-model = models.Sequential([
-    # First Block: Feature Extraction
-    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(100, 100, 3)),
-    layers.MaxPooling2D((2, 2)),
-    
-    # Second Block: Capturing complex textures (dimples vs. waxiness)
-    layers.Conv2D(64, (3, 3), activation='relu'),
-    layers.MaxPooling2D((2, 2)),
-    
-    # Third Block: High-level pattern recognition
-    layers.Conv2D(128, (3, 3), activation='relu'),
-    layers.MaxPooling2D((2, 2)),
-    
-    layers.Flatten(),
-    
-    # Dense Layers with Dropout to prevent overfitting
-    layers.Dense(128, activation='relu'),
-    layers.Dropout(0.5), 
-    layers.Dense(1, activation='sigmoid') # Output: 0 for Apple, 1 for Orange
-])
+# 1. Separate Features (X) and Target (y)
+# X contains the 93 skill/activity features; y contains the Risk_Level
+X = df.loc[:, 'Arm-Hand Steadiness':'Working with Computers']
+y = df['Risk_Level']
 
-# 2. Compile with Adam Optimizer and Binary Crossentropy
-model.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy']
-)
+# 2. Label Encoding (Categorical to Numerical)
+le = LabelEncoder()
+y_encoded = le.fit_transform(y)
 
-model.summary()
+# 3. Feature Scaling (Standardization for SVM)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Results
+print(f"Features (X) shape: {X_scaled.shape}")
+print(f"Target (y) classes: {le.classes_}")
+print(f"Mapping: {dict(zip(le.classes_, range(len(le.classes_))))}")
